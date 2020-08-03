@@ -1,0 +1,20 @@
+ <launch>
+    <!-- 设置launch文件的参数 -->
+    <arg name="ns_name" default="racecar"/>
+    <!-- 从yaml文件加载联合控制器的参数 -->
+    <rosparam file="$(find carpack_controller)/config/controller_racecar.yaml" command="load"/>
+
+    <!-- 加载控制器 spawner -->
+    <node name="controller_manager" pkg="controller_manager" type="spawner" 
+          respawn="false" output="screen" ns="$(arg ns_name)" 
+          args="left_rear_wheel_velocity_controller       right_rear_wheel_velocity_controller
+                left_front_wheel_velocity_controller      right_front_wheel_velocity_controller
+                left_steering_hinge_position_controller   right_steering_hinge_position_controller
+                joint_state_controller"/>
+
+    <!--运行joint_state_publisher节点，发布机器人关节状态-->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" ns="$(arg ns_name)">
+       <param name="publish_frequency" type="double" value="20.0" />
+       <remap from="joint_states" to="/$(arg ns_name)/joint_states"/>
+    </node>
+</launch>

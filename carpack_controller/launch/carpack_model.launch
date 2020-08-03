@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- 运行gazebo仿真环境-->
+    <!-- 加载机器人模型描述参数 -->
+    <!-- 在gazebo中加载机器人模型-->
+    <include file="$(find carpack_controller)/launch/include/car_model.launch.xml">
+       <param name="model_name" value="racecar"/>
+    </include>
+
+    <!-- 从yaml文件加载联合控制器的参数 -->
+    <!-- 加载控制器 spawner -->
+    <!--运行joint_state_publisher节点，发布机器人关节状态-->
+    <include file="$(find carpack_controller)/launch/include/car_controller.launch.xml">
+       <param name="ns_name" value="racecar"/>
+    </include>
+
+    <!-- 电机控制 -->
+    <node name="motor_pwm" type="motor_pwm.py" pkg="carpack_controller" ns="racecar">
+       <param name="car_name" value="racecar"/>
+       <param name="sub_name" value="pwm_input"/>
+    </node>
+    
+    <!-- 按键输入 -->
+    <node name="key_get" type="key_get.py" pkg="carpack_controller" ns="racecar">
+       <param name="max_speed" type="double" value="10"/>
+       <param name="max_angle" type="double" value="0.32"/>
+       <param name="key_pass"  type="double" value="0"/>
+       <param name="pub_name"  type="string" value="pwm_input"/>
+    </node>
+
+</launch>
+
+
+

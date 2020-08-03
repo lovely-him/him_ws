@@ -1,0 +1,40 @@
+<!-- 
+    ROS navigation stack with velocity smoother and safety (reactive) controller
+-->
+<launch>
+  <!--include file="$(find navigation_sim_demo)/launch/include/velocity_smoother.launch.xml"/-->
+  <!--include file="$(find navigation_sim_demo)/launch/include/safety_controller.launch.xml"/-->
+  
+  <arg name="odom_frame_id"   default="odom"/>
+  <arg name="base_frame_id"   default="base_footprint"/>
+  <arg name="global_frame_id" default="map"/>
+  <arg name="odom_topic"      default="/slam/odom_topic" />
+  <arg name="laser_topic"     default="/scan" />
+  <arg name="cmd_vel_name"    default="/racecar/pwm_input" />
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" ns="slam">
+    <rosparam file="$(find carpack_slam)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find carpack_slam)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />   
+    <rosparam file="$(find carpack_slam)/param/local_costmap_params.yaml" command="load" />   
+    <rosparam file="$(find carpack_slam)/param/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find carpack_slam)/param/move_base_params.yaml" command="load" />
+    <rosparam file="$(find carpack_slam)/param/global_planner_params.yaml" command="load" />
+    <rosparam file="$(find carpack_slam)/param/dwa_local_planner_params.yaml" command="load" />
+    <!--rosparam file="$(find carpack_slam)/param/navfn_global_planner_params.yaml" command="load" /-->
+    <!--rosparam file="$(find carpack_slam)/param/teb_local_planner_params.yaml" command="load" /-->
+    
+    <!-- reset frame_id parameters using user input data -->
+    <param name="global_costmap/global_frame" value="$(arg global_frame_id)"/>
+    <param name="global_costmap/robot_base_frame" value="$(arg base_frame_id)"/>
+    <param name="local_costmap/global_frame" value="$(arg odom_frame_id)"/>
+    <param name="local_costmap/robot_base_frame" value="$(arg base_frame_id)"/>
+    <param name="DWAPlannerROS/global_frame_id" value="$(arg odom_frame_id)"/>
+
+    <remap from="/slam/odom"            to="$(arg odom_topic)"/>
+    <remap from="/slam/scan"            to="$(arg laser_topic)"/> 
+    <remap from="/slam/cmd_vel"         to="$(arg cmd_vel_name)"/>
+    <!-- rviz -->
+    <!--remap from="/slam/move_base_simple/goal"  to="/move_base_simple/goal"/-->
+
+  </node>
+</launch>

@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- “car_controller.launch.xml”文件中修改joint话题的名字 -->
+    <include file="$(find carpack_controller)/launch/carpack_model.launch"/>
+
+    <!-- 根据 Imu（陀螺仪） 与 joint（编码器）建立odom坐标 -->
+    <node name="imu_odom" pkg="carpack_slam" type="imu_odom.py" ns="slam">
+        <remap from="/slam/imu_data" to="/imu_data"/>
+        <remap from="/slam/joint_states" to="/racecar/joint_states"/>
+        <param name="odom_topic" value="odom_topic"/>
+    </node>
+    
+    <!-- SLAM Gmapping -->
+    <!--include file="$(find carpack_slam)/launch/include/robot_gmapping.launch.xml"/-->
+
+      <!-- Map server -->
+    <arg name="map_file" default="$(find carpack_slam)/map/map_runway.yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" ns="slam"/>
+
+    <!-- 开启map话题 -->
+    <!-- Localization -->
+    <arg name="use_map_topic"  default="True"/>
+    <arg name="initial_pose_x" default="-0.5"/>
+    <arg name="initial_pose_y" default="0.0"/>
+    <arg name="initial_pose_a" default="0.0"/>
+    <arg name="custom_amcl_launch_file" default="$(find carpack_slam)/launch/include/robot_amcl.launch.xml"/> 
+    <include file="$(arg custom_amcl_launch_file)" >
+        <arg name="initial_pose_x" value="$(arg initial_pose_x)"/>
+        <arg name="initial_pose_y" value="$(arg initial_pose_y)"/>
+        <arg name="initial_pose_a" value="$(arg initial_pose_a)"/>
+        <arg name="use_map_topic"  value="$(arg use_map_topic)"/>
+    </include>
+
+    <!-- Move base -->
+    <include file="$(find carpack_slam)/launch/include/move_base.launch.xml"/>
+
+    <!--node name="better_odom" pkg="topic_tools" type="relay" args="/imu_data /imu_tools"/-->
+
+    
+
+</launch>

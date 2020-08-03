@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- 打开rviz -->
+    <node name="rviz" pkg="rviz" type="rviz"
+          args="-d $(find carpack_racecar)/rviz/racecar_urdf.rviz" required="true"/>
+</launch>
