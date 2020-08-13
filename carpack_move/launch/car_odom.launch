@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<launch>
+    <!--先启动 gazebo 并加载 模型关节消息 -->
+    <include file="$(find carpack_control)/launch/car_control.launch" />
+
+    <!-- 获取odom坐标 用户编写的Python文件 -->
+    <!--node name="odom_move" pkg="carpack_move" type="odom_move.py"/-->
+    <!-- 获取odom坐标 用户编写的Python文件 -->
+    <node name="odom_gazebo" pkg="carpack_move" type="odom_gazebo.py"/>
+    <!-- 获取odom坐标 用户编写的Python文件 -->
+    <node name="odom_imu" pkg="carpack_move" type="odom_imu.py"/>
+    <!-- 计算odom误差 用户编写的Python文件 -->
+    <node name="odom_text" pkg="carpack_move" type="odom_text.py"/>
+
+    <!-- SLAM Gmapping 建图 -->
+    <!--include file="$(find carpack_move)/launch/include/robot_gmapping.launch.xml" /--> 
+
+    <!-- Map server 提供地图 -->
+    <arg name="map_file" default="$(find carpack_move)/map/map_runway.yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
+
+    <!-- Localization 定位 -->
+    <include file="$(find carpack_move)/launch/include/robot_amcl.launch.xml" />
+
+    <!-- Move base 导航 -->
+    <include file="$(find carpack_move)/launch/include/move_base.launch.xml"/>
+
+    <!-- roslaunch carpack_move car_odom.launch -->
+    <!-- roslaunch carpack_control car_rviz.launch -->
+</launch>
