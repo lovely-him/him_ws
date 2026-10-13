@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<launch>
+    <!--先启动 gazebo 并加载 模型关节消息 -->
+    <include file="$(find carpack_control)/launch/car_gazebo.launch" />
+
+        <!-- 从yaml文件加载联合控制器的参数 -->
+    <rosparam file="$(find carpack_control)/config/controller_racecar.yaml" command="load"/>
+
+    <!-- 加载控制器 spawner -->
+    <node name="controller_manager" pkg="controller_manager" type="spawner" 
+          respawn="false" output="screen" ns="/racecar" 
+          args="left_rear_wheel_velocity_controller       right_rear_wheel_velocity_controller
+                left_front_wheel_velocity_controller      right_front_wheel_velocity_controller
+                left_steering_hinge_position_controller   right_steering_hinge_position_controller
+                joint_state_controller">
+    </node>
+
+    <!-- 启动关节控制器 用户编写的Python文件 -->
+    <node name="motor_control" pkg="carpack_control" type="motor_control.py"/>
+
+    <!-- 启动按键控制器 用户编写的Python文件 -->
+    <node name="key_control" pkg="carpack_control" type="key_control.py"/>
+
+</launch>
